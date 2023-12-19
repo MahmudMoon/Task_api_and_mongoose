@@ -71,6 +71,63 @@ async function getFilteredTasks(taskFilter){
     }
 }
 
+async function changeCompleteStausOfTask(id, status){
+    try{
+        let result = await Task.findByIdAndUpdate(id, {completed: status})
+        let updatedResult = await Task.findById(id).exec();
+        console.log(updatedResult);
+        return updatedResult.completed == status;
+    }catch{
+        console.log(error);
+        throw error;
+    }
+}
+
+async function changeAgeofUser(id, age){
+    try{
+        let result = await User.findByIdAndUpdate(id, {age: age})
+        let updatedResult = await User.findById(id).exec();
+        console.log(updatedResult);
+        return updatedResult.age == age;
+    }catch{
+        console.log(error);
+        throw error;
+    }
+}
+
+async function getUserCount(){
+    try{
+        let count = await User.countDocuments()
+        console.log(count);
+        return count;
+    }catch(error){
+        console.log(error);
+        throw error;
+    }
+}
+
+async function getTaskCount(){
+    try{
+        let count = await Task.countDocuments()
+        console.log(count);
+        return count;
+    }catch(error){
+        console.log(error);
+        throw error;
+    }
+}
+
+async function deleteTask(id){
+    try{
+        let result = await Task.findByIdAndDelete(id).exec()
+        console.log(result);
+        return result;
+    }catch(error){
+        console.log(error);
+        throw error;
+    }
+}
+
 
 module.exports = {
     saveDocumentInMongoDb,
@@ -78,5 +135,10 @@ module.exports = {
     getAllTasks,
     getAllUsers,
     getFilteredTasks,
-    getFilteredUsers
+    getFilteredUsers,
+    changeCompleteStausOfTask,
+    changeAgeofUser,
+    getUserCount,
+    getTaskCount,
+    deleteTask
 }
