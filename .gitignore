@@ -1,0 +1,19 @@
+# Dependency directories
+node_modules/
+
+# Environment variables
+.env
+
+# Logs
+logs
+*.log
+
+# Output of npm
+npm-debug.log
+
+# Ignore local config files
+config.js
+
+# OS-specific files
+.DS_Store
+Thumbs.db
