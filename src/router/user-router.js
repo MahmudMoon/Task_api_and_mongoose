@@ -1,10 +1,11 @@
 const {Router} = require('express');
 const mongooseHelper = require('../db/mongoDbHelper');
 const jwt = require('../jwt/jwt');
+const authentication = require('../middlewares/authentication');
 
 const router = Router();
 
-router.get('/', async (req, res, next)=>{
+router.get('/', authentication.auth , async (req, res, next)=>{
     try{
         let result = await mongooseHelper.getAllUsers()
         res.status(200).json(result);
@@ -13,7 +14,15 @@ router.get('/', async (req, res, next)=>{
     }
 });
 
-router.get('/count', async (req, res, next)=>{
+router.get('/me', authentication.auth, async (req, res, next)=>{
+    try{
+        res.status(200).json(req.user);
+    }catch(error){
+        res.status(500).send(error);
+    }
+})
+
+router.get('/count', authentication.auth , async (req, res, next)=>{
     try{
         let result = await mongooseHelper.getUserCount();
         console.log('total user: ', result);
@@ -26,7 +35,7 @@ router.get('/count', async (req, res, next)=>{
     }
 })
 
-router.get('/:_id',async (req, res, next)=>{
+router.get('/:_id', authentication.auth, async (req, res, next)=>{
     let reqID = req.params._id;
     console.log(reqID);
     try{
@@ -62,7 +71,7 @@ router.post('/', async (req, res, next)=>{
     }
 });
 
-router.patch('/:_id', async (req, res, next)=>{
+router.patch('/:_id', authentication.auth, async (req, res, next)=>{
     let id = req.params._id;
     let updatableData = req.body;
     console.log(id, updatableData);
@@ -94,7 +103,7 @@ router.patch('/:_id', async (req, res, next)=>{
 })
 
 
-router.delete('/:_id', async (req, res, next)=>{
+router.delete('/:_id', authentication.auth, async (req, res, next)=>{
     let id = req.params._id;
     try{
         let beforeCount = await mongooseHelper.getUserCount()

@@ -18,7 +18,7 @@ app.use(express.urlencoded());
 //adding router middlewares
 app.use('/user', userRouter);
 app.use('/task', taskRouter);
-app.use('/login', authRouter);
+app.use('/auth', authRouter);
 
 
 app.listen(port, ()=>{
@@ -36,22 +36,3 @@ app.listen(port, ()=>{
 //     fs.writeFileSync('random.txt', randomString);
 //     return randomString
 // })()
-
-function testCreate(){
-   let hash = bcryptjs.hashSync('monn1234', 8);
-   console.log('hash>> ', hash);
-   return hash
-}
-
-function compareTest(hash){
-    return bcryptjs.compareSync('monn1234', "$2a$08$ECREAYOOaRdZmcKGv4FkmexB.11vHcAUmF7lTf7PuyGNP8Q/T/5r6");
-}
-
-
-console.log(compareTest(testCreate()));
-
-// console.log(compareTest(testCreate()));
-
-// console.log(compareTest(testCreate()));
-
-// console.log(compareTest(testCreate()));

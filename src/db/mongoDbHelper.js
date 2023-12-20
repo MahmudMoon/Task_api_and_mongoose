@@ -52,7 +52,6 @@ async function getFilteredUsers(userFilter){
 async function getAllTasks(){
     try{
         let tasks = Task.find({});
-        console.log(tasks);
         return tasks;
     }catch(error){
         console.log(error);

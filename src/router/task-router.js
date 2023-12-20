@@ -1,9 +1,10 @@
 const {Router} = require('express');
 const mongooseHelper = require('../db/mongoDbHelper');
+const authentication = require('../middlewares/authentication');
 
 const router = Router();
 
-router.get('/', async (req, res, next) =>{
+router.get('/' ,authentication.auth ,async (req, res, next) =>{
     try{
         let result = await mongooseHelper.getAllTasks()
         res.status(200).json(result);
@@ -12,7 +13,7 @@ router.get('/', async (req, res, next) =>{
     }
 });
 
-router.get('/count',async (req, res, next)=>{
+router.get('/count' ,authentication.auth ,async (req, res, next)=>{
     try{
         let result = await mongooseHelper.getTaskCount()
         console.log('total tasks: ', result);
@@ -25,7 +26,7 @@ router.get('/count',async (req, res, next)=>{
     }
 })
 
-router.get('/:_id', async (req, res, next)=>{
+router.get('/:_id', authentication.auth , async (req, res, next)=>{
     let reqID = req.params._id;
     console.log(reqID);
     try{
@@ -36,7 +37,7 @@ router.get('/:_id', async (req, res, next)=>{
     }
 })
 
-router.post('/', async (req, res, next)=>{
+router.post('/', authentication.auth ,  async (req, res, next)=>{
     let task = req.body;
     try{
         let result = await mongooseHelper.saveDocumentInMongoDb(task)
@@ -50,7 +51,7 @@ router.post('/', async (req, res, next)=>{
     }
 })
 
-router.patch('/:_id', async (req, res, next)=>{
+router.patch('/:_id' ,authentication.auth ,async (req, res, next)=>{
     let id = req.params._id;
     let updateableData = req.body;
 
@@ -84,7 +85,7 @@ router.patch('/:_id', async (req, res, next)=>{
     }
 })
 
-router.delete('/:_id', async (req, res, next)=> {
+router.delete('/:_id',authentication.auth  , async (req, res, next)=> {
     let id = req.params._id;
     try{
         let beforeCount = await mongooseHelper.getTaskCount()
