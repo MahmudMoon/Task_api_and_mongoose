@@ -6,8 +6,8 @@ async function saveNewUser(userData){
     try{
         let user = new User(userData);
         await user.save();
-        console.log('user saved');
-        return true;
+        console.log(user);
+        return user;
     }catch(error){
         console.log(error.message);
         throw error;
@@ -30,7 +30,6 @@ async function saveDocumentInMongoDb(taskCreated){
 async function getAllUsers(){
     try{
         let users = await User.find({});
-        console.log(users);
         return users;
     }catch(error){
         console.log(error);
@@ -155,11 +154,34 @@ async function assistLogin(authData){
     try{
         let email = authData.email
         let user = await User.findOne({email})
+        console.log('login user: ', user);
         if(!user) throw new Error('No valid user found');
-        let isValidUser = await bcryptjs.compare(authData.password, user.password);
-        console.log('isValidUser ', isValidUser)
-        if(isValidUser) return user;
-        else return undefined;
+
+        console.log('raw: ', authData.password);
+        console.log('hash: ', user.password);
+
+        try{
+            let isValidUser = bcryptjs.compareSync(authData.password, user.password);
+            console.log('isValidUser ', isValidUser)
+            if(isValidUser) return user;
+            else return undefined;
+        }catch(error){
+            console.log(error);
+            throw error;
+        }
+        
+    }catch(error){
+        console.log(error);
+        throw error;
+    }
+}
+
+async function addTokenToDb(token, id){
+    try{
+        let user = await User.findById(id);
+        user.tokens.push({token});
+        await user.save();
+        return user;
     }catch(error){
         console.log(error);
         throw error;
@@ -180,5 +202,6 @@ module.exports = {
     getTaskCount,
     deleteTask,
     deleteUser,
-    assistLogin
+    assistLogin,
+    addTokenToDb
 }

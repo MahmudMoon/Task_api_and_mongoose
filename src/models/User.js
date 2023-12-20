@@ -39,13 +39,20 @@ const userSchema = new mongoose.Schema({
             return value>=18;
         },
         message: 'user age should be greater that 18'
-    }}
+    }},
+
+    tokens: [{
+        token: {
+            type: String,
+            require: true
+        }
+    }]
    })
 
    userSchema.pre('save', async function(next){
     let user = this;
     console.log(user);
-    user.password = await bcryptjs.hash(user.password, 8);
+    user.password = bcryptjs.hashSync(user.password, 8);
     console.log(user.password);
     next();
    });

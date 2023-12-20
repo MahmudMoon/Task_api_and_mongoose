@@ -1,5 +1,6 @@
 const {Router} = require('express');
 const mongooseHelper = require('../db/mongoDbHelper');
+const jwt = require('../jwt/jwt');
 
 const router = Router();
 
@@ -41,11 +42,15 @@ router.post('/', async (req, res, next)=>{
     console.log(user);
     if(Object.keys(user).length>0){
         try{
-            let result = await mongooseHelper.saveNewUser(user);
-            console.log('saved new user ', result);
+            let returnedUser = await mongooseHelper.saveNewUser(user);
+            console.log('saved new user ', returnedUser);
+            let token = jwt.createJWTToken(returnedUser._id);
+            returnedUser.tokens.push({token});
+            await returnedUser.save();
             res.status(201).json({
-                message: 'new user created'
-            })
+                user: returnedUser,
+                token
+            });
         }catch(error){
             console.log('failed to save user ', error.message);
             res.status(400).send(error);

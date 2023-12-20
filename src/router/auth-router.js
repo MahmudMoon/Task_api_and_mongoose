@@ -12,11 +12,18 @@ router.get('/', async (req, res, next)=>{
         if(user){
             let token = jwt.createJWTToken(user._id)
             console.log(token);
+            let updatedUser = await mongoDbHelper.addTokenToDb(token, user._id);
             let varificationRes = await jwt.varifyJWTtoken(token)
-            console.log(varificationRes);
-            res.status(200).json(varificationRes); 
+            if(varificationRes){
+                res.status(200).json({
+                    updatedUser,
+                    token
+                }); 
+            }else{
+                res.status(200).send('invalid password'); 
+            }
         }else{
-            res.status(200).send('invalid password');      
+            res.status(200).send('invalid password user null');      
         }
     }catch(error){
         console.log('failed to validate user ', error.message);
