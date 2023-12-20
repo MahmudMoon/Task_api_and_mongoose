@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const bcryptjs = require('bcryptjs');
+const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -6,10 +8,21 @@ const userSchema = new mongoose.Schema({
         require: true,
         validate: { 
         validator: function(value){
-            return value.length > 10
+            return value.length > 0
         },
         message: 'enter valid user name'
     }},
+    email: {
+        type: String,
+        require: true,
+        unique: true,
+        validate: {
+            validator: function(value){
+                return validator.isEmail(value);
+            },
+            message: 'Enter valid email'
+        }
+    },
     password: {
         type: String,
         require: true,
@@ -28,6 +41,15 @@ const userSchema = new mongoose.Schema({
         message: 'user age should be greater that 18'
     }}
    })
+
+   userSchema.pre('save', async function(next){
+    let user = this;
+    console.log(user);
+    user.password = await bcryptjs.hash(user.password, 8);
+    console.log(user.password);
+    next();
+   });
+
 
    const User = new mongoose.model('User', userSchema);
    module.exports = User;

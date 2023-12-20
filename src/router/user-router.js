@@ -59,22 +59,56 @@ router.post('/', async (req, res, next)=>{
 
 router.patch('/:_id', async (req, res, next)=>{
     let id = req.params._id;
-    let age = req.body.age;
-    console.log(id, age);
+    let updatableData = req.body;
+    console.log(id, updatableData);
+    let updatableProperies = ['name', 'password' ,'age'];
+    let requestedKeys = Object.keys(updatableData);
+    let isValidKey = requestedKeys.every((update)=>{
+        return updatableProperies.includes(update);
+    })
+    if(!isValidKey){
+        return res.status(400).json({
+            message: 'Invalid key found in request body'
+        })
+    }
     try{
-        let result = await mongooseHelper.changeAgeofUser(id, age)
-        console.log('result => ',result)
+        let result = await mongooseHelper.updateUser(id, updatableData)
         if(result){
             res.status(200).json({
-                message: 'age updated'
+                message: 'user updated'
             })
         }else{
             res.status(500).json({
-                message: 'Failed to update'
+                message: 'Failed to update user'
             })
         }
     }catch(error){
-        console.log('failed to update age ', error.message);
+        console.log('failed to update user ', error.message);
+        res.status(500).send(error.message);
+    }
+})
+
+
+router.delete('/:_id', async (req, res, next)=>{
+    let id = req.params._id;
+    try{
+        let beforeCount = await mongooseHelper.getUserCount()
+        console.log('before delete '+ beforeCount);
+        let deleteResult = await mongooseHelper.deleteUser(id);
+        console.log('result => ',deleteResult)
+        if(deleteResult){
+            res.status(200).json({
+            message: 'User deleted'
+            })
+        }else{
+            res.status(500).json({
+            message: 'Failed to delete user'
+            })
+        }
+        let afterDelete = await mongooseHelper.getUserCount();
+        console.log('after delete '+ afterDelete);
+    }catch(error){
+        console.log('failed to delete user ', error.message);
         res.status(500).send(error.message);
     }
 })

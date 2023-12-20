@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const Task = require('../models/Task');
+const bcryptjs = require('bcryptjs');
 
 async function saveNewUser(userData){
     try{
@@ -71,24 +72,35 @@ async function getFilteredTasks(taskFilter){
     }
 }
 
-async function changeCompleteStausOfTask(id, status){
+async function updateTask(id, task){
     try{
-        let result = await Task.findByIdAndUpdate(id, {completed: status})
-        let updatedResult = await Task.findById(id).exec();
-        console.log(updatedResult);
-        return updatedResult.completed == status;
+        let oldTask = await Task.findById(id);
+        console.log('old task', oldTask);
+        
+        for (const key in task) {
+            oldTask[key] = task[key];
+        }
+        console.log('after update', oldTask);
+        await oldTask.save();
+        return true;
     }catch{
         console.log(error);
         throw error;
     }
 }
 
-async function changeAgeofUser(id, age){
+async function updateUser(id, user){
     try{
-        let result = await User.findByIdAndUpdate(id, {age: age})
-        let updatedResult = await User.findById(id).exec();
-        console.log(updatedResult);
-        return updatedResult.age == age;
+        let oldUserData = await User.findById(id);
+        console.log('old data', oldUserData);
+        
+        for (const key in user) {
+            oldUserData[key] = user[key];
+        }
+        console.log('after update', oldUserData);
+        await oldUserData.save();
+       // let result = await User.findByIdAndUpdate(id, user , {new: true, runValidators: true})
+        return true;
     }catch{
         console.log(error);
         throw error;
@@ -128,6 +140,32 @@ async function deleteTask(id){
     }
 }
 
+async function deleteUser(id){
+    try{
+        let result = await User.findByIdAndDelete(id).exec()
+        console.log(result);
+        return result;
+    }catch(error){
+        console.log(error);
+        throw error;
+    }
+}
+
+async function assistLogin(authData){
+    try{
+        let email = authData.email
+        let user = await User.findOne({email})
+        if(!user) throw new Error('No valid user found');
+        let isValidUser = await bcryptjs.compare(authData.password, user.password);
+        console.log('isValidUser ', isValidUser)
+        if(isValidUser) return user;
+        else return undefined;
+    }catch(error){
+        console.log(error);
+        throw error;
+    }
+}
+
 
 module.exports = {
     saveDocumentInMongoDb,
@@ -136,9 +174,11 @@ module.exports = {
     getAllUsers,
     getFilteredTasks,
     getFilteredUsers,
-    changeCompleteStausOfTask,
-    changeAgeofUser,
+    updateTask,
+    updateUser,
     getUserCount,
     getTaskCount,
-    deleteTask
+    deleteTask,
+    deleteUser,
+    assistLogin
 }

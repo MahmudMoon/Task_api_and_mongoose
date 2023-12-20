@@ -52,11 +52,23 @@ router.post('/', async (req, res, next)=>{
 
 router.patch('/:_id', async (req, res, next)=>{
     let id = req.params._id;
-    let status = req.body.completed;
-    console.log(id, status);
+    let updateableData = req.body;
+
+    let updatableProperies = ['title', 'completed'];
+    let requestedKeys = Object.keys(req.body);
+    let validKeys = requestedKeys.every((update)=>{
+        return updatableProperies.includes(update);
+    })
+
+    if(!validKeys){
+        return res.status(400).json({
+            message: 'Invalid key for update'
+        })
+    }
+
     try{
-        let result = await mongooseHelper.changeCompleteStausOfTask(id, status)
-        console.log('result => ',result)
+        let result = await mongooseHelper.updateTask(id, updateableData)
+        console.log(result);
         if(result){
             res.status(200).json({
                 message: 'task updated'
@@ -84,8 +96,8 @@ router.delete('/:_id', async (req, res, next)=> {
             message: 'task deleted'
             })
         }else{
-            res.status(500).json({
-            message: 'Failed to delete task'
+            res.status(400).json({
+            message: 'user not found to delete'
             })
         }
         let afterDelete = await mongooseHelper.getTaskCount();
