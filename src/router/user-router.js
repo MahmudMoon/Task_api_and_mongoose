@@ -4,6 +4,8 @@ const jwt = require('../jwt/jwt');
 const authentication = require('../middlewares/authentication');
 
 const multer = require('multer');
+const sharp = require('sharp');
+const User = require('../models/User');
 
 const router = Router();
 
@@ -75,20 +77,54 @@ router.post('/', async (req, res, next)=>{
 
 
 const upload = multer({
-    dest: 'images',
     limits: {
         fileSize :  1024 * 1024,
     },
     fileFilter: (req, file, cb)=>{
-        if(!file.originalname.endsWith('.jpg')){
-            return cb(new Error('please upload a jpg file', undefined));
+        if(!file.originalname.endsWith('.jpg') && !file.originalname.endsWith('.jpeg') && !file.originalname.endsWith('.png')){
+            return cb(new Error('please upload a jpg/jpeg/png file', undefined));
         }
         cb(undefined, true);
     }
 })
 
-router.post('/me/avatar', authentication.auth, upload.single('avatar') , async (req, res, next)=>{
+router.post('/me/avatar', authentication.auth,
+ upload.single('avatar') , async (req, res, next)=>{
+    let buffer = await new sharp(req.file.buffer)
+                .resize({width: 250, height: 250})
+                .png()
+                .toBuffer();
+
+    req.user.avatar = buffer;
+    req.user.save();
     res.status(200).send('image uploaded')
+})
+
+router.delete('/me/avatar', authentication.auth, async (req, res, next)=>{
+    try{
+        req.user.avatar = undefined;
+        await req.user.save();
+        res.status(200).send('avater cleared');
+    }catch(error){
+        console.log('failed to delete user avater', error.message);
+        res.status(500).send(error.message);
+    }
+   
+})
+
+router.get('/:_id/avatar', authentication.auth , async (req, res, next)=>{
+    try{
+        let user = await User.findById(req.params._id);
+        if(!user || !user.avatar){
+            throw new Error('No profile avatar found')
+        }
+        res.set('Content-Type','image/png');
+        res.status(200).send(user.avatar);
+
+    }catch(error){
+        console.log(error);
+        res.status(error.status||404).send(error.message);
+    }
 })
 
 

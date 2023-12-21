@@ -47,7 +47,10 @@ const userSchema = new mongoose.Schema({
             type: String,
             require: true
         }
-    }]
+    }],
+    avatar: {
+        type: Buffer
+    }
    }, {timestamps: true})
 
    //create a virtual property to set one to many relation between User <==> Task collections
@@ -63,7 +66,8 @@ const userSchema = new mongoose.Schema({
         let userObject = user.toObject();
         delete userObject.password;
         delete userObject.tokens;
-        delete userObject.__v
+        delete userObject.__v;
+        delete userObject.avatar;
         return userObject;
    }
 

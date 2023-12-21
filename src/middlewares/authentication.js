@@ -9,7 +9,6 @@ module.exports = {
             let data = await jwt.varifyJWTtoken(token)
             console.log(data);
             let user = await User.find({_id: data.id, 'tokens.token': token})
-            console.log(user[0]);
             if(!user[0]){
                 throw new Error('No valid user found');
             }

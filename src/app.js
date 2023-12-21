@@ -21,6 +21,13 @@ app.use('/task', taskRouter);
 app.use('/auth', authRouter);
 
 
+app.use((error, req, res, next)=>{
+    if(error){
+        res.status(error.status||500).send(error.message);
+    }
+})
+
+
 app.listen(port, ()=>{
     console.log('server connected');
 })
