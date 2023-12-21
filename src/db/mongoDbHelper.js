@@ -49,11 +49,27 @@ async function getFilteredUsers(userFilter){
 }
 
 
-async function getAllTasks(id){
+async function getAllTasks(id, match, sortBy){
     try{
-        //let tasks = Task.find({owner: id});
-        let tasks = await User.findById(id).populate('tasks').exec()
-        return tasks.tasks;
+        //'tasks'
+
+        let user = await User.findById(id).populate({
+            path: 'tasks',
+            match,
+            options: {
+                sort: sortBy
+            }
+        }).exec()
+
+        // if(completed!=undefined){
+        //     console.log('1',completed)
+        //     if(user.tasks.length>0){
+        //         user.tasks =  user.tasks.filter((task)=>{
+        //            return task.completed == completed 
+        //         })
+        //     }
+        // }
+        return user.tasks;
     }catch(error){
         console.log(error);
         throw error;

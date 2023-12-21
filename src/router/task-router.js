@@ -5,8 +5,22 @@ const authentication = require('../middlewares/authentication');
 const router = Router();
 
 router.get('/me' ,authentication.auth ,async (req, res, next) =>{
+    let match = {};
+    let sort = {};
+
+    if(req.query.completed){
+        match.completed = req.query.completed === 'true' ? true : req.query.completed === 'false' ? false : undefined
+    }
+    if(req.query.sortBy){
+       const parts = req.query.sortBy.split(':')
+       sort[parts[0]] = parts[1] === 'desc' ? -1: 1
+    }
+    if(match.completed == undefined) match = {};
+
+    console.log(match, sort);
+
     try{
-        let result = await mongooseHelper.getAllTasks(req.user._id);
+        let result = await mongooseHelper.getAllTasks(req.user._id, match, sort);
         res.status(200).json(result);
     }catch(error){
         res.status(500).send(error);

@@ -48,7 +48,7 @@ const userSchema = new mongoose.Schema({
             require: true
         }
     }]
-   })
+   }, {timestamps: true})
 
    //create a virtual property to set one to many relation between User <==> Task collections
    userSchema.virtual('tasks', {

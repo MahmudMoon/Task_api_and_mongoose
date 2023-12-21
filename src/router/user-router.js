@@ -3,6 +3,8 @@ const mongooseHelper = require('../db/mongoDbHelper');
 const jwt = require('../jwt/jwt');
 const authentication = require('../middlewares/authentication');
 
+const multer = require('multer');
+
 const router = Router();
 
 router.get('/', authentication.auth , async (req, res, next)=>{
@@ -70,6 +72,26 @@ router.post('/', async (req, res, next)=>{
         })
     }
 });
+
+
+const upload = multer({
+    dest: 'images',
+    limits: {
+        fileSize :  1024 * 1024,
+    },
+    fileFilter: (req, file, cb)=>{
+        if(!file.originalname.endsWith('.jpg')){
+            return cb(new Error('please upload a jpg file', undefined));
+        }
+        cb(undefined, true);
+    }
+})
+
+router.post('/me/avatar', authentication.auth, upload.single('avatar') , async (req, res, next)=>{
+    res.status(200).send('image uploaded')
+})
+
+
 
 router.patch('/me', authentication.auth, async (req, res, next)=>{
     let id = req.user._id;
