@@ -71,8 +71,8 @@ router.post('/', async (req, res, next)=>{
     }
 });
 
-router.patch('/:_id', authentication.auth, async (req, res, next)=>{
-    let id = req.params._id;
+router.patch('/me', authentication.auth, async (req, res, next)=>{
+    let id = req.user._id;
     let updatableData = req.body;
     console.log(id, updatableData);
     let updatableProperies = ['name', 'password' ,'age'];
@@ -103,12 +103,11 @@ router.patch('/:_id', authentication.auth, async (req, res, next)=>{
 })
 
 
-router.delete('/:_id', authentication.auth, async (req, res, next)=>{
-    let id = req.params._id;
+router.delete('/me', authentication.auth, async (req, res, next)=>{
     try{
         let beforeCount = await mongooseHelper.getUserCount()
         console.log('before delete '+ beforeCount);
-        let deleteResult = await mongooseHelper.deleteUser(id);
+        let deleteResult = await mongooseHelper.deleteUser(req.user._id);
         console.log('result => ',deleteResult)
         if(deleteResult){
             res.status(200).json({

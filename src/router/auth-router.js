@@ -5,7 +5,7 @@ const authentication = require('../middlewares/authentication');
 
 const router = Router();
 
-router.get('/login', async (req, res, next)=>{
+router.post('/login', async (req, res, next)=>{
     let authData = req.body
     try{
         let user = await mongoDbHelper.assistLogin(authData);

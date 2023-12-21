@@ -4,9 +4,9 @@ const authentication = require('../middlewares/authentication');
 
 const router = Router();
 
-router.get('/' ,authentication.auth ,async (req, res, next) =>{
+router.get('/me' ,authentication.auth ,async (req, res, next) =>{
     try{
-        let result = await mongooseHelper.getAllTasks()
+        let result = await mongooseHelper.getAllTasks(req.user._id);
         res.status(200).json(result);
     }catch(error){
         res.status(500).send(error);
@@ -40,6 +40,7 @@ router.get('/:_id', authentication.auth , async (req, res, next)=>{
 router.post('/', authentication.auth ,  async (req, res, next)=>{
     let task = req.body;
     try{
+        task.owner = req.user._id;
         let result = await mongooseHelper.saveDocumentInMongoDb(task)
         console.log('saved new task ', result);
         res.status(201).json({
@@ -68,20 +69,20 @@ router.patch('/:_id' ,authentication.auth ,async (req, res, next)=>{
     }
 
     try{
-        let result = await mongooseHelper.updateTask(id, updateableData)
+        let result = await mongooseHelper.updateTask(id, updateableData, req.user._id)
         console.log(result);
         if(result){
             res.status(200).json({
                 message: 'task updated'
             })
         }else{
-            res.status(500).json({
+            res.status(403).json({
                 message: 'Failed to update'
             })
         }
     }catch(error){
         console.log('failed to update task ', error.message);
-        res.status(500).send(error.message);
+        res.status(403).send(error.message);
     }
 })
 
@@ -90,22 +91,22 @@ router.delete('/:_id',authentication.auth  , async (req, res, next)=> {
     try{
         let beforeCount = await mongooseHelper.getTaskCount()
         console.log('before delete '+ beforeCount);
-        let deleteResult = await mongooseHelper.deleteTask(id);
+        let deleteResult = await mongooseHelper.deleteTask(id, req.user._id);
         console.log('result => ',deleteResult)
         if(deleteResult){
             res.status(200).json({
             message: 'task deleted'
             })
         }else{
-            res.status(400).json({
-            message: 'user not found to delete'
+            res.status(403).json({
+            message: 'user not authorized to delete'
             })
         }
         let afterDelete = await mongooseHelper.getTaskCount();
         console.log('after delete '+ afterDelete);
     }catch(error){
         console.log('failed to delete task ', error.message);
-        res.status(500).send(error.message);
+        res.status(403).send(error.message);
     }
 })
 

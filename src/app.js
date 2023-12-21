@@ -36,3 +36,26 @@ app.listen(port, ()=>{
 //     fs.writeFileSync('random.txt', randomString);
 //     return randomString
 // })()
+
+
+
+
+// const Task = require('./models/Task');
+
+// //6583c48baedfc56ddf3bbd67
+// // async function testRelation(){
+// //     let task = await Task.findById({_id: '6583c48baedfc56ddf3bbd67'}).populate('owner').exec();
+// //     //console.log(task);
+// //    // let res = await task.populate('owner').exec();
+// //     console.log(task.owner);
+// // }
+
+// const User = require('./models/User');
+// async function testRelation(){
+//     let user = await User.findById({_id: '6583c107741d1a0a532690bf'}).populate('tasks').exec();
+//     //console.log(task);
+//    // let res = await task.populate('owner').exec();
+//     console.log(user.tasks);
+// }
+
+// testRelation();

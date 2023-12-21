@@ -49,10 +49,11 @@ async function getFilteredUsers(userFilter){
 }
 
 
-async function getAllTasks(){
+async function getAllTasks(id){
     try{
-        let tasks = Task.find({});
-        return tasks;
+        //let tasks = Task.find({owner: id});
+        let tasks = await User.findById(id).populate('tasks').exec()
+        return tasks.tasks;
     }catch(error){
         console.log(error);
         throw error;
@@ -61,7 +62,7 @@ async function getAllTasks(){
 
 async function getFilteredTasks(taskFilter){
     try{
-        let filteredTasks = Task.find(taskFilter)
+        let filteredTasks = Task.findOne(taskFilter).populate('owner').exec();
         console.log(filteredTasks);
         return filteredTasks;
     }catch(error){
@@ -70,10 +71,11 @@ async function getFilteredTasks(taskFilter){
     }
 }
 
-async function updateTask(id, task){
+async function updateTask(id, task, user_id){
     try{
-        let oldTask = await Task.findById(id);
+        let oldTask = await Task.findOne({_id: id, owner: user_id});
         console.log('old task', oldTask);
+        if(!oldTask) throw new Error('You are not authorized to update this task');
         
         for (const key in task) {
             oldTask[key] = task[key];
@@ -81,8 +83,8 @@ async function updateTask(id, task){
         console.log('after update', oldTask);
         await oldTask.save();
         return true;
-    }catch{
-        console.log(error);
+    }catch(error){
+        console.log('error:> ' ,error);
         throw error;
     }
 }
@@ -127,10 +129,13 @@ async function getTaskCount(){
     }
 }
 
-async function deleteTask(id){
+async function deleteTask(id, user_id){
     try{
-        let result = await Task.findByIdAndDelete(id).exec()
-        console.log(result);
+        let task = await Task.findOne({_id: id, owner: user_id})
+        console.log('task> ', task);
+        if(!task) throw new Error('You are not authorized to delete this task');
+        let result = await Task.deleteOne({_id: task._id})
+        console.log('del>',result);
         return result;
     }catch(error){
         console.log(error);
@@ -140,7 +145,8 @@ async function deleteTask(id){
 
 async function deleteUser(id){
     try{
-        let result = await User.findByIdAndDelete(id).exec()
+        await Task.deleteMany({owner: id})
+        let result = await User.findOneAndDelete({_id: id})
         console.log(result);
         return result;
     }catch(error){
