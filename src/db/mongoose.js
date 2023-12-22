@@ -2,11 +2,11 @@ const mongoose = require('mongoose');
 
 (async function initMongoose(){
     try{
-       let connection = await mongoose.connect('mongodb://127.0.0.1:27017/task-manager-api',{
+       let connection = await mongoose.connect(process.env.MONGO_DB_URL, {
             useNewUrlParser: true,
             autoIndex: true
         })
-        console.log('mongo db connected')
+        console.log('mongo db connected at url ', process.env.MONGO_DB_URL);
     }catch(error){
         console.log('mongo db connection failed ', error.message);
     }

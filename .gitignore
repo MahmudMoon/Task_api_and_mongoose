@@ -12,6 +12,7 @@ logs
 npm-debug.log
 
 # Ignore local config files
+config/
 config.js
 
 # OS-specific files

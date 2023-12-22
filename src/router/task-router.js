@@ -11,12 +11,14 @@ router.get('/me' ,authentication.auth ,async (req, res, next) =>{
     if(req.query.completed){
         match.completed = req.query.completed === 'true' ? true : req.query.completed === 'false' ? false : undefined
     }
+    if(match.completed == undefined) match = {};
+
+
     if(req.query.sortBy){
        const parts = req.query.sortBy.split(':')
        sort[parts[0]] = parts[1] === 'desc' ? -1: 1
     }
-    if(match.completed == undefined) match = {};
-
+    
     console.log(match, sort);
 
     try{

@@ -7,7 +7,7 @@ const authRouter = require('./router/auth-router');
 
 const bcryptjs = require('bcryptjs');
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 const app = express();
 
@@ -29,7 +29,8 @@ app.use((error, req, res, next)=>{
 
 
 app.listen(port, ()=>{
-    console.log('server connected');
+    console.log('server connected at port>', port);
+    console.log('JWT KEY>', process.env.JWT_SECRET_KEY);
 })
 
 
